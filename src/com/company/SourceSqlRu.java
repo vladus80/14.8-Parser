@@ -5,20 +5,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 public class SourceSqlRu implements IParser {
 
@@ -28,9 +25,19 @@ public class SourceSqlRu implements IParser {
     String link;      // ссылка на сайт
 
 
-    // конструктор по умолчанию
+    // конструктор по умолчанию search="+keyWord+"
     public SourceSqlRu() {
-        this("https://www.sql.ru/forum/job-offers/",".postslisttopic",1,"java");
+
+        this("https://www.sql.ru/forum/actualsearch.aspx?search=java&sin=1&bid=66&a=&ma=0&dt=-1&s=4&so=1&pg=", ".postslisttopic", 1, "java");
+    }
+
+
+    public SourceSqlRu( int periodMonths, String keyWord) throws UnsupportedEncodingException {
+
+        this("https://www.sql.ru/forum/actualsearch.aspx?search="+ URLEncoder.encode( keyWord, "cp1251")+"&sin=1&bid=66&a=&ma=0&dt=-1&s=4&so=1&pg=",
+        ".postslisttopic", periodMonths, keyWord );
+
+
     }
 
     // конструктор с параметрами
@@ -39,258 +46,75 @@ public class SourceSqlRu implements IParser {
         this.periodMonths = periodMonths;
         this.keyWord = keyWord;
         this.link = link;
-        //System.out.println(link);
+
     }
 
 
     @Override
     public void sourceRun() {
-        //System.out.println(this.periodMonths - this.periodMonths*2);
-        Document document = null;
-        long dataFormatLong = 0; // сюда помещаем дату из вакансии
+
+        Document document;
+        long dataFormatLong; // сюда помещаем дату из вакансии
         Calendar calendar = new GregorianCalendar(); // текущая дата
         long dataMarker = calendar.getTime().getTime();
         calendar.add(Calendar.MONTH, this.periodMonths - this.periodMonths*2); // отнимаем кол-во месяцев (делаем число отрицательным)
         long dateDist = calendar.getTime().getTime(); // Конечная дата
-        Charset charset = Charset.defaultCharset();
-        ArrayList<String> stringList = new ArrayList<String>();
-
+        ArrayList<String> stringList = new ArrayList<>(); // список строк куда помещает отфильтрованнные данные
+        DateHelp dateHelp = new DateHelp(); // вспомогательный класс для форматирования даты со страницы сайта
 
         int i = 1; // счетчик для листания страниц форума
-        int marker =0; // маркер для выхода из основного цикла do
-
         // Запускаем цикл до тех пор время из поста больше конечного времени
         while (dataMarker > dateDist){
-            //System.out.println(i);
+
             try {
-                // запрашиваем страницу
-                document = Jsoup.connect(this.link+ i).get();
+
+                try {
+                    //запрашиваем страницу
+                    document = Jsoup.connect( this.link+ i).get();
+                }catch (UnknownHostException e){
+
+                    System.out.println("Невозможно установить соединение. Проверьте подключение...");
+                    break;
+                }
+
                 Elements elements = document.select(this.cssQuery); //фильтруем по элементу
-                // создаем шаблон по которому будем фильтровать
-                Pattern pattern = Pattern.compile(this.keyWord, Pattern.CASE_INSENSITIVE);
+                if(elements.size() == 0){
+                    System.out.println("Поиск не дал результатов");
+                    break;
+                }
+
                 // перебираем коллекцию запрошенных элементов
                 for (Element element : elements) {
-                    Matcher matcher = pattern.matcher(element.child(0).text());
-
-                    // Если найдено сопадение
-                    if (matcher.find()) {
                         String vacancy = element.child(0).text(); // строка с название вакансии
                         String linkJobVacancy = element.child(0).attr("href"); // ссылка для захода внутрь страницы вакансии и поиска даты публикации
-                        String dataFormatStr  = getDateFormat(getDatePublication(linkJobVacancy)); // отформатированная дата вакансии в текстовом формате
-                        dataFormatLong = dateLong(getDatePublication(linkJobVacancy));  // отформатированная дата в long
+                        String dataFormatStr  = dateHelp.getDateFormat(dateHelp.getDatePublication(linkJobVacancy)); // отформатированная дата вакансии в текстовом формате
+                        dataFormatLong = dateHelp.dateLong(dateHelp.getDatePublication(linkJobVacancy));  // отформатированная дата в long
+
                         dataMarker = dataFormatLong;
-                        if(dataFormatLong < dateDist){
-                            //System.out.println("!!!! " +new Date(dateDist));
+                        if(dataFormatLong > dateDist){
+
+                            stringList.add("Вакансия: " + vacancy + "- Опубликовано: " + dataFormatStr);
+                            System.out.println("Вакансия: " + vacancy + "- Опубликовано: " + dataFormatStr );
+
+                        }else{
                             String finalLine = "==================\r\n"
                                     +"Найдено " + stringList.size() + " вакансий (" + keyWord  + ") за период  "+  periodMonths + " месяца(ев) с "
                                     + new SimpleDateFormat("d MMM yyyy").format(dateDist) + " по "
                                     + new SimpleDateFormat("d MMM yyyy").format(new Date())
                                     +"\r\n=================";
                             stringList.add(finalLine);
-                            saveDataInFile(stringList, "data.txt");
+                            DateHelp.saveDataInFile(stringList, "data.txt");
                             System.out.println(finalLine);
                             break; //Если дата публикации меньше конечной даты, выходим
-                        }else {
-                            stringList.add("Вакансия: " + vacancy + "- Опубликовано: " + dataFormatStr);
-                            System.out.println("Вакансия: " + vacancy + "- Опубликовано: " + dataFormatStr);
                         }
-
-                    }
                 }
 
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
-
+            System.out.println("Страница " +i);
             i ++; // страница (листаем форум)
-        };
-
-    }
-
-    // Возвращает дату в миллисекундах (тип long)
-    // параметр strDateFormat - Отформатированная строка даты методом getDateFormat;
-    private long dateLong(String strDateFormat) throws ParseException {
-
-        Locale loc_ru = new Locale("ru", "RU");
-        Date date = new SimpleDateFormat("d MMM yy", loc_ru).parse(getDateFormat(strDateFormat));
-        return date.getTime();
-    }
-
-    // Метод вычитает из текущей даты время в месяцах и возвращает разницу в миллисекундах
-    // параметр raw1 сырая строка времени из даты публикации вакансии
-    // параметр month принимает число месяцев для вычитания
-    private long getDiffDate(String raw1, int month) {
-
-        Date date1 = null;
-        Date date2 = null;
-        Locale loc_ru = new Locale("ru", "RU");
-
-        Calendar calendar = new GregorianCalendar();
-        System.out.println(calendar.getTime().getTime()); // Текущая дата
-
-        calendar.add(Calendar.MONTH, month);              // Дата с разницей во времени по месяцам
-        System.out.println(calendar.getTime().getTime());
-
-        try {
-            date1 = new SimpleDateFormat("d MMM yy", loc_ru).parse(getDateFormat(raw1));
-            date2 = calendar.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-
-        long diff = date1.getTime() - date2.getTime();
-
-        return diff;
-    }
-
-    // Метод возвращает дату в виде строки в формате 'd MMM yyyy'
-    private String getDateJavaFormat(String rawDate) {
-
-        Date date = null;
-        Locale loc_ru = new Locale("ru", "RU");
-
-        try {
-            date = new SimpleDateFormat("d MMM yy", loc_ru).parse(rawDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        //System.out.println(new SimpleDateFormat("d MMM yyyy", loc_ru).format(date));
-
-        return new SimpleDateFormat("d MMM yyyy", loc_ru).format(date);
-    }
-
-    // Метод обрабытывает сырую строку времени полученную методом getDatePublication
-    // rawDate строка полученная методом getDatePublication (приводит строку '1 ноя 20' к '1 нояб. 2020')
-    private String getDateFormat(String rawDate) {
-
-        String ret = null;
-        Locale loc_ru = new Locale("ru", "RU");
-        Calendar calendar = new GregorianCalendar();
-        calendar.add(Calendar.DAY_OF_MONTH, -1);
-
-        if (rawDate.equals("сегодня")) {
-            Date date = new Date();
-
-            ret = new SimpleDateFormat("d MMM yyyy", loc_ru).format(date);
-
-
-        } else if(rawDate.equals("вчера")){
-
-            ret = new SimpleDateFormat("d MMM yyyy", loc_ru).format(calendar.getTime());
-
-        } else {
-
-            String[] arStr = rawDate.split(" ");
-            String mon = arStr[1];
-            String newMon = "";
-
-            switch (mon) {
-
-                case "янв":
-                    newMon = "января";
-                    break;
-
-                case "фев":
-                    newMon = "февраля";
-                    break;
-                case "мар":
-                    newMon = "марта";
-                    break;
-                case "апр":
-                    newMon = "апреля";
-                    break;
-                case "май":
-                    newMon = "мая";
-                    break;
-                case "июн":
-                    newMon = "июня";
-                    break;
-                case "июл":
-                    newMon = "июля";
-                    break;
-                case "авг":
-                    newMon = "августа";
-                    break;
-                case "сен":
-                    newMon = "сентября";
-                    break;
-                case "окт":
-                    newMon = "октября";
-                    break;
-                case "ноя":
-                    newMon = "ноября";
-                    break;
-                case "дек":
-                    newMon = "декабря";
-                    break;
-
-
-            }
-
-            ret = arStr[0] + " " + newMon + " " + arStr[2];
-
-        }
-
-
-        return getDateJavaFormat(ret);
-    }
-
-
-    // Метод возвращает дату публикации в виде сырой строки
-    // Параметр link - ссылка на объявление
-    private String getDatePublication(String link) {
-
-        String ret = null;
-        String retRes = null;
-        Document document = null;
-        try {
-            document = Jsoup.connect(link).get();
-            Elements elements = document.select(".msgFooter");
-            // Выбирает первое сообщение в посте и возвращает время как на сайте
-            retRes = elements.get(0).text().split(",")[0];
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ret = retRes;
-        return ret;
-
-    }
-
-    public ArrayList parseElement(ArrayList elements) {
-
-
-        return null;
-    }
-
-
-    // Метод сохраняет в файл список найденных вхождений
-    public void saveDataInFile(ArrayList<String> data, String fileSave) throws IOException {
-
-        File file = new File(fileSave);
-        if (!file.exists() && !file.isDirectory()) {
-            file.createNewFile();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            for (String value : data) {
-                writer.write(value + "\n");
-            }
-            writer.close();
-            // Если файл пустой и не является директорией
-        } else {
-
-            if (file.length() == 0) {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                for (String value : data) {
-                    writer.write(value + "\n");
-                }
-                writer.close();
-            }
-
         }
     }
-
-
 }
 
