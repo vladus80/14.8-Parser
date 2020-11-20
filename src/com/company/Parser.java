@@ -34,7 +34,7 @@ public class   Parser {
     }
 
     // Метод создает файл с данными
-    public  void saveDataInFile( String fileSave) throws IOException {
+    public  void saveDataInFile( String fileSave, boolean outConsole) throws IOException {
 
         ArrayList<PageElement> data = this.getElements();
         File file = new File(fileSave);
@@ -43,6 +43,9 @@ public class   Parser {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             for (PageElement value : data) {
                 writer.write(value.getValue() + "\n");
+                if (outConsole){
+                    System.out.println(value.getValue());
+                }
             }
             writer.close();
             // Если файл пустой и не является директорией
@@ -55,37 +58,12 @@ public class   Parser {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 for (PageElement value : data) {
                     writer.write(value.getValue() + "\n");
+                    if (outConsole){
+                        System.out.println(value.getValue());
+                    }
                 }
                 writer.close();
             }
-
         }
     }
-
-    public void saveObjectInFile(String fileSave) throws IOException{
-        ArrayList<PageElement> data = this.getElements();
-        File file = new File(fileSave);
-        if (!file.exists() && !file.isDirectory()) {
-            file.createNewFile();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            for (PageElement value : data) {
-                writer.write(value.toString() + "\n");
-            }
-            writer.close();
-            // Если файл пустой и не является директорией
-        } else {
-            file.delete();
-            file.createNewFile();
-
-            if (file.length() == 0) {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                for (PageElement value : data) {
-                    writer.write(value.toString() + "\n");
-                }
-                writer.close();
-            }
-
-        }
-    }
-
 }

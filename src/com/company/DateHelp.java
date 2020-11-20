@@ -4,13 +4,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class DateHelp {
 
@@ -72,7 +72,7 @@ public class DateHelp {
     // rawDate строка полученная методом getDatePublication (приводит строку '1 ноя 20' к '1 нояб. 2020')
     public String getDateFormat(String rawDate) {
 
-        String ret = null;
+        String ret;
         Locale loc_ru = new Locale("ru", "RU");
         Calendar calendar = new GregorianCalendar();
         calendar.add(Calendar.DAY_OF_MONTH, -1);
@@ -149,9 +149,9 @@ public class DateHelp {
     // Параметр link - ссылка на объявление
     public String getDatePublication(String link) {
 
-        String ret = null;
+        String ret;
         String retRes = null;
-        Document document = null;
+        Document document;
         try {
             document = Jsoup.connect(link).get();
             Elements elements = document.select(".msgFooter");
