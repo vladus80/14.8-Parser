@@ -165,34 +165,4 @@ public class DateHelp {
         return ret;
 
     }
-
-
-    // Метод сохраняет в файл список найденных вхождений
-    public static void saveDataInFile(ArrayList<String> data, String fileSave) throws IOException {
-
-        File file = new File(fileSave);
-        if (!file.exists() && !file.isDirectory()) {
-            file.createNewFile();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            for (String value : data) {
-                writer.write(value + "\n");
-            }
-            writer.close();
-            // Если файл пустой и не является директорией
-        } else {
-
-            file.delete();
-            file.createNewFile();
-
-            if (file.length() == 0) {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                for (String value : data) {
-                    writer.write(value + "\n");
-                }
-                writer.close();
-            }
-
-        }
-    }
-
 }

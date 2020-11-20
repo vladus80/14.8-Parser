@@ -1,5 +1,9 @@
 package com.company;
 
-public interface IParser {
-    void sourceRun();
+import javax.swing.text.Element;
+import java.util.ArrayList;
+
+public  interface  IParser {
+    void sourceConnect();
+    ArrayList<PageElement> getPageElements();
 }
