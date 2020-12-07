@@ -1,5 +1,10 @@
 package com.company;
 
+/*
+* Класс реализующий работу с сайтом sql.ru
+* */
+
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,13 +32,20 @@ public class SourceSqlRu implements IParser {
     long dataMarker = calendar.getTime().getTime();
     long dateDist; // конечная дата
     ArrayList<PageElement> pageElements = new ArrayList<>(); // Список куда будем ложить отфильтрованные элементы
+    PageElement element1;
 
-    // конструктор по умолчанию
+    //конструктор по умолчанию
+    // Если вызвать пустой конструктор то он заполняется:
+    // ссылкой на сайт sql.ru
+    // тэг по умолчанию '.postslisttopic'
+    // период 1 месяц
+    // ключевое слово java
     public SourceSqlRu() {
 
         this("https://www.sql.ru/forum/actualsearch.aspx?search=java&sin=1&bid=66&a=&ma=0&dt=-1&s=4&so=1&pg=", ".postslisttopic", 1, "java");
     }
 
+    //
     public SourceSqlRu( int periodMonths, String keyWord) throws UnsupportedEncodingException {
 
         this("https://www.sql.ru/forum/actualsearch.aspx?search="+ URLEncoder.encode( keyWord, "cp1251")+"&sin=1&bid=66&a=&ma=0&dt=-1&s=4&so=1&pg=",
@@ -41,7 +53,13 @@ public class SourceSqlRu implements IParser {
 
     }
 
-    // конструктор с параметрами
+     /*
+     *конструктор с параметрами:
+     * link - ссылка на ресурс
+     * cssQuery - тэг по которому будет осуществляться отбор
+     * periodMonths - период в месяцах
+     * keyWord - ключевое слово
+     * */
     public SourceSqlRu(String link, String cssQuery, int periodMonths, String keyWord) {
 
         this.cssQuery = cssQuery;
@@ -52,6 +70,9 @@ public class SourceSqlRu implements IParser {
 
     }
 
+
+    // Метод соединяется с ресурсом и заполняет объект класса PageElement
+    // имплиментирует метод интерфейса IParser
     @Override
     public void sourceConnect() {
 
@@ -93,6 +114,10 @@ public class SourceSqlRu implements IParser {
         return pageElements;
     }
 
+    @Override
+    public String toString() {
+        return element1.getElement().toString();
+    }
 
     // Метод добавляет объекты в структуру данных ArrayList класса PageElement
     private void listElements(Elements elements) throws  ParseException {
@@ -100,18 +125,14 @@ public class SourceSqlRu implements IParser {
         for (Element element : elements) {
             String vacancy = element.child(0).text(); // строка с название вакансии
             String linkJobVacancy = element.child(0).attr("href"); // ссылка для захода внутрь страницы вакансии и поиска даты публикации
-            String dataFormatStr  = dateHelp.getDateFormat(dateHelp.getDatePublication(linkJobVacancy)); // отформатированная дата вакансии в текстовом формате
+            //String dataFormatStr  = dateHelp.getDateFormat(dateHelp.getDatePublication(linkJobVacancy)); // отформатированная дата вакансии в текстовом формате
             dataFormatLong = dateHelp.dateLong(dateHelp.getDatePublication(linkJobVacancy));  // отформатированная дата в long
             dataMarker = dataFormatLong;
 
             if(dataFormatLong > dateDist){
-                PageElement element1 = new PageElement(element);
-                //element1.setDate(dataFormatStr);
-                element1.setKeyWord(keyWord);
-                element1.setValue(vacancy);
-                pageElements.add(element1);
-
-                //pageElements.add(new PageElement(vacancy));
+                element1 = new PageElement(element);
+                element1.setValue(vacancy); // Записываем в поле value объекта pageElements текст тэга
+                pageElements.add(element1); // Добавляем в список объект Element (Класс Element библиотеки Jsoup)
             }else{
                 break; //Если дата публикации меньше конечной даты, выходим
             }

@@ -1,48 +1,54 @@
 package com.company;
+/*
+* Общий класс, конструктор которого получает два параметра:
+* Класс позволяет запросить страницу и вернуть список элементов.
+* Класс имплиментирует два метода: sourceConnect и getPageElements интерфейса IParser
+* */
 
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.jsoup.select.Selector;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
-public class SourceShare  implements IParser{
+public class SourceShare implements IParser {
     private String url;
     private String tag;
-    private ArrayList<PageElement> pageElements = new ArrayList<>();
+    PageElement element; // ссылка на объект класса  Element
+    private ArrayList<PageElement> pageElements = new ArrayList<>(); // ссылка на класс, куда складываем элементы
 
+    // Конструктор класса
     public SourceShare(String url, String tag) {
-        this.url = url;
-        this.tag = tag;
+        this.url = url; //url - ссылка на ресурс откуда необходмио получить данные
+        this.tag = tag; //tag - тэг который хотим получить
     }
 
-
+    // Метод соединяется с ресурсом и заполняет объект класса PageElement
+    // имплиментирует метод интерфейса IParser
     @Override
     public void sourceConnect() throws IOException {
+        Document document = Jsoup.connect(url).get(); //запрашиваем документ
+        Elements elements = document.select(tag);     // получаем коллекцию элементов  по тэгу
 
-        Document document = Jsoup.connect( url).get();
-        Elements elements = document.select(tag);
-
-        for (Element el : elements ) {
-            //System.out.println(el.child(0).text()+" " + el);
-            PageElement element = new PageElement(el);
-            element.setValue(el.text());
-            pageElements.add(element);
-
+        //перебираем коллекцию
+        for (Element el : elements) {
+            element = new PageElement(el);
+            element.setValue(el.text()); // Записываем в поле value объекта pageElements текст тэга
+            pageElements.add(element);   // Добавляем в список объект Element (Класс Element библиотеки Jsoup)
         }
-        //System.out.println(elements.size());
-
-
     }
 
+    // Метод возвращает список объектов класса pageElements, в которых содержатся заполненные данные
+    // имплиментирует метод интерфейса IParser
     @Override
     public ArrayList<PageElement> getPageElements() {
         return pageElements;
+    }
+
+    @Override
+    public String toString() {
+        return element.getElement().toString();
     }
 
 }

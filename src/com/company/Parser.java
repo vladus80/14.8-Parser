@@ -1,34 +1,38 @@
 package com.company;
-
-import org.jsoup.nodes.Element;
-
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class   Parser {
+/*
+* Основной класс, через который осуществляется работа с классами имплиментирующими интерфейс IParser,
+* которые в свою очередь реализуют конкретные классы для работы с конкретными сайтами
+* */
 
+public class   Parser {
 
     private  IParser iParser;
 
     // Конструктор класса  принимает объекты реализующее интерфейс IParser
-
     public  Parser(IParser iParser) {
 
         this.iParser = iParser;
     }
 
+    // Запускает работу парсера вызывая метод sourceConnect() интерфейса iParser
     public  void runParser() throws IOException {
         iParser.sourceConnect();
     }
 
+    // Устанавливает объект класса реализующий интерфейс IParser
     public  void setSource(IParser iParser) {
         this.iParser = iParser;
     }
 
+    public IParser getIParser() {
+        return iParser;
+    }
 
     // Метод возвращает список объектов PageElement
     public ArrayList<PageElement> getElements() throws IOException {
@@ -39,19 +43,24 @@ public class   Parser {
     }
 
 
+   /*
+   * Метод создает файл с данным и выводит в консоль полученные данные
+   * Метод принимает два параметра:
+   * fileSave - имя файла
+   * outConsole - осуществлять вывод в консоль или нет
+   * */
 
-    // Метод создает файл с данными
     public  void saveDataInFile( String fileSave, boolean outConsole) throws IOException {
 
-        ArrayList<PageElement> data = this.getElements();
+        ArrayList<PageElement> data =  this.getElements();
         File file = new File(fileSave);
         if (!file.exists() && !file.isDirectory()) {
             file.createNewFile();
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             for (PageElement value : data) {
-                writer.write(value.getValue());
+                writer.write(value.toString()+"\n");
                 if (outConsole){
-                    System.out.println(value.getValue());
+                    System.out.print(value.toString()+"\n");
                 }
             }
             writer.close();
@@ -64,9 +73,9 @@ public class   Parser {
             if (file.length() == 0) {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 for (PageElement value : data) {
-                    writer.write(value.getValue() );
+                    writer.write(value.toString()+"\n");
                     if (outConsole){
-                        System.out.println(value.getValue());
+                        System.out.print(value.toString()+"\n");
                     }
                 }
                 writer.close();

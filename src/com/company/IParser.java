@@ -1,5 +1,10 @@
 package com.company;
 
+/*
+* Интерфейс определяет два метода:
+* sourceConnect() - отвечает за соединение с ресурсом
+* */
+
 import java.io.IOException;
 import java.util.ArrayList;
 

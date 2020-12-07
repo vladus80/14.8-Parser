@@ -1,22 +1,18 @@
 package com.company;
 
-import org.jsoup.nodes.Element;
+/*
+* Класс реализует структура данных в которой будут хранится объекты класса Element, а так же текст тэга
+* */
 
-import java.util.Objects;
+import org.jsoup.nodes.Element;
 
 public class PageElement{
 
-    private String keyWord;
-    private String value;
-    private Element element;
-   // private String date;
+    private String value; // поле куда будет складываться текст тэга
+    private Element element; // поле куда будем ложить объект класса Element
 
-//    public PageElement(String value) {
-//
-//        this.value = value;
-//
-//    }
 
+    // Конструктор класса получает ссылку класса Element
     public PageElement(Element element){
         this.element = element;
     }
@@ -25,37 +21,8 @@ public class PageElement{
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
-    }
-
     public Element getElement() {
         return element;
-    }
-
-    public void setElement(Element element) {
-        this.element = element;
-    }
-
-    //public String getDate() {return date;}
-
-    //public void setDate(String date) {this.date = date; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PageElement)) return false;
-        PageElement that = (PageElement) o;
-        return keyWord.equals(that.keyWord) &&
-                value.equals(that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(keyWord, value);
     }
 
     @Override

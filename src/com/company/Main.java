@@ -1,68 +1,81 @@
 package com.company;
 
-import org.jsoup.nodes.Element;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 public class  Main {
 
 
     public static void main(String[] args) throws IOException {
 
-        startIde();
-        //startConsole(args);
+        //startIde();  // если запускаем через Idea
+        startConsole(args); // если запускаем через jar-файл в терминале
 
     }
 
     public static void startIde() throws IOException {
 
-//        Parser parser = new Parser(new SourceShare("https://lenta.ru", "a"));
-//        parser.runParser();
-//        parser.saveDataInFile("data3.txt",true);
-//
-//        Parser parser = new Parser(new SourceSqlRu(3, "sql"));
-//        parser.runParser();
-//        parser.saveDataInFile("data3.txt",true);
+        // Тестовый запрос к сайту https://lenta.ru в котором получаем все ссылки документа
+        Parser parserLentaRu = new Parser(new SourceShare("https://lenta.ru", "a"));
+        parserLentaRu.runParser();
+        parserLentaRu.saveDataInFile("dataLenta.txt",true);
 
-        Parser parser1 = new Parser(new SourceShare("http://ursa-tm.ru/forum/index.php?", "a"));
-        parser1.saveDataInFile("data5.txt", true);
-
-        //Parser parser2 = new Parser(new SourceSqlRu(2, "java"));
-        //parser2.saveDataInFile("data6.txt", true);
-
+        // Тестовый запрос к сайту sql.ru в котором получаем вакансии с ключевым словом 'sql' за 3 последних месяца
+        Parser parserSqlRu = new Parser(new SourceSqlRu(3, "sql"));
+        parserSqlRu.runParser();
+        parserSqlRu.saveDataInFile("dataSqlRu.txt",true);
 
     }
 
 
     public static void  startConsole(String[] args) throws IOException {
-        if(args.length==4) {
-            int period = Integer.valueOf(args[1]);
-            String keyWord = args[3];
+        if(args.length==6) {
+            String url= args[1];
+            int period = Integer.valueOf(args[3]);
+            String keyWord = args[5];
 
-            if(args[0].equals("-period") && args[2].equals("-kw")){
+            if(args[0].equals("-url") &&  args[2].equals("-period") && args[4].equals("-kw") ){
 
-                SourceSqlRu sourceSqlRu = new SourceSqlRu(period, keyWord);
-                Parser parser = new Parser (sourceSqlRu);
-                parser.runParser();
-                parser.saveDataInFile("data.txt", true);
+                if (url.equals("sql")){
+                    //args[0] = "https://www.sql.ru/forum/actualsearch.aspx?search=java&sin=1&bid=66&a=&ma=0&dt=-1&s=4&so=1&pg=";
+                    SourceSqlRu sourceSqlRu = new SourceSqlRu(period, keyWord);
+                    Parser parser = new Parser (sourceSqlRu);
+                    parser.runParser();
+                    parser.saveDataInFile("dataSqlRu.txt", true);
+
+                }else{
+                    System.out.println("Неверно заданы параметры. Введите в формате: -url 'sql' -period 1 -kw 'java' где \n\r" +
+                            "-period период в месяцах \n\r"+
+                            "-kw ключевое слово");
+                }
 
 
             }else {
-                System.out.println("Неверно заданы параметры. Введите в формате: -period 1 -kw 'java' где \n\r" +
-                        "-period период в месяцах \n\r"+
-                        "-kw ключевое слово");
+
+                SourceShare sourceShare = new SourceShare(url, keyWord);
+                Parser parser = new Parser(sourceShare);
+                parser.runParser();
+                parser.saveDataInFile("data.txt", true);
+
             }
 
-        }else {
-            Parser parser = new Parser (new SourceSqlRu());
-            parser.runParser();
+        }else if (args.length==4){
+
+            String url = args[1];
+            String kw  = args[3];
+            Parser parser = new Parser (new SourceShare(url, kw));
             parser.saveDataInFile("data.txt", true);
+
+
+        }
+
+
+        else {
+            Parser parserSqlRu = new Parser (new SourceSqlRu());
+            parserSqlRu.runParser();
+            parserSqlRu.saveDataInFile("dataSqlRu.txt", true);
 
         }
 
     }
-
 
 }
