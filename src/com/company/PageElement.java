@@ -1,19 +1,48 @@
 package com.company;
 
+import org.jsoup.nodes.Element;
+
 import java.util.Objects;
 
-public class PageElement {
+public class PageElement{
 
     private String keyWord;
     private String value;
-    private String vacancy;
-    private String date;
+    private Element element;
+   // private String date;
 
-    public PageElement(String value) {
-        //this.keyWord = vacancy;
-        this.value = value;
+//    public PageElement(String value) {
+//
+//        this.value = value;
+//
+//    }
 
+    public PageElement(Element element){
+        this.element = element;
     }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
+
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    //public String getDate() {return date;}
+
+    //public void setDate(String date) {this.date = date; }
 
     @Override
     public boolean equals(Object o) {
@@ -31,50 +60,6 @@ public class PageElement {
 
     @Override
     public String toString() {
-        return "PageElement{" +
-                "tag='" + keyWord + '\'' +
-                ", value='" + value + '\'' +
-                ", date='" + date + '\'' +
-                '}';
+        return value ;
     }
-
-    public String getTag() {
-        return keyWord;
-    }
-
-    public void setTag(String tag) {
-        this.keyWord = tag;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getKeyWord() {
-        return keyWord;
-    }
-
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
-    }
-
-    public String getVacancy() {
-        return vacancy;
-    }
-
-    public void setVacancy(String vacancy) {
-        this.vacancy = vacancy;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-}
 }

@@ -1,40 +1,36 @@
 package com.company;
 
+import org.jsoup.nodes.Element;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 public class  Main {
 
 
     public static void main(String[] args) throws IOException {
 
-        //startIde();
-        startConsole(args);
+        startIde();
+        //startConsole(args);
 
     }
 
-    public static void startIde() throws UnsupportedEncodingException {
+    public static void startIde() throws IOException {
 
-        SourceSqlRu sourceSqlRu = new SourceSqlRu();
+//        Parser parser = new Parser(new SourceShare("https://lenta.ru", "a"));
+//        parser.runParser();
+//        parser.saveDataInFile("data3.txt",true);
+//
+//        Parser parser = new Parser(new SourceSqlRu(3, "sql"));
+//        parser.runParser();
+//        parser.saveDataInFile("data3.txt",true);
 
-        sourceSqlRu.sourceConnect();
+        Parser parser1 = new Parser(new SourceShare("http://ursa-tm.ru/forum/index.php?", "a"));
+        parser1.saveDataInFile("data5.txt", true);
 
-        //System.out.println(sourceSqlRu.getPageElements());
-
-        Parser parser = new Parser (new SourceSqlRu(3, "аналитик"));
-        parser.setSource(sourceSqlRu);
-
-        parser.setSource(new SourceSqlRu(5,"java"));
-        //parser.saveObjectInFile("data2.txt");
-        for (PageElement element: parser.getElements()) {
-            System.out.println(element.getValue() + " " + element.getDate());
-        }
-        System.out.println("========================\n\r Всего найдено "
-                + parser.getElements().size() + " вакансий с "
-                + parser.getElements().get(0).getDate() +
-                " по " + parser.getElements().get(parser.getElements().size()-1).getDate());
-
-        //parser.runParser();
+        //Parser parser2 = new Parser(new SourceSqlRu(2, "java"));
+        //parser2.saveDataInFile("data6.txt", true);
 
 
     }

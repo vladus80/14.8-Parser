@@ -26,7 +26,6 @@ public class SourceSqlRu implements IParser {
     Calendar calendar = new GregorianCalendar(); // текущая дата
     long dataMarker = calendar.getTime().getTime();
     long dateDist; // конечная дата
-
     ArrayList<PageElement> pageElements = new ArrayList<>(); // Список куда будем ложить отфильтрованные элементы
 
     // конструктор по умолчанию
@@ -106,9 +105,10 @@ public class SourceSqlRu implements IParser {
             dataMarker = dataFormatLong;
 
             if(dataFormatLong > dateDist){
-                PageElement element1 = new PageElement(vacancy);
-                element1.setDate(dataFormatStr);
+                PageElement element1 = new PageElement(element);
+                //element1.setDate(dataFormatStr);
                 element1.setKeyWord(keyWord);
+                element1.setValue(vacancy);
                 pageElements.add(element1);
 
                 //pageElements.add(new PageElement(vacancy));

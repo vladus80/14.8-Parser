@@ -1,5 +1,8 @@
 package com.company;
 
+import org.jsoup.nodes.Element;
+
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -12,11 +15,13 @@ public class   Parser {
     private  IParser iParser;
 
     // Конструктор класса  принимает объекты реализующее интерфейс IParser
+
     public  Parser(IParser iParser) {
+
         this.iParser = iParser;
     }
 
-    public  void runParser() {
+    public  void runParser() throws IOException {
         iParser.sourceConnect();
     }
 
@@ -25,13 +30,15 @@ public class   Parser {
     }
 
 
-    // Метод возвращает список объектов
-    public ArrayList<PageElement> getElements(){
+    // Метод возвращает список объектов PageElement
+    public ArrayList<PageElement> getElements() throws IOException {
         iParser.sourceConnect();
         //iParser.toString();
         return iParser.getPageElements();
 
     }
+
+
 
     // Метод создает файл с данными
     public  void saveDataInFile( String fileSave, boolean outConsole) throws IOException {
@@ -42,7 +49,7 @@ public class   Parser {
             file.createNewFile();
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             for (PageElement value : data) {
-                writer.write(value.getValue() + "\n");
+                writer.write(value.getValue());
                 if (outConsole){
                     System.out.println(value.getValue());
                 }
@@ -57,7 +64,7 @@ public class   Parser {
             if (file.length() == 0) {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 for (PageElement value : data) {
-                    writer.write(value.getValue() + "\n");
+                    writer.write(value.getValue() );
                     if (outConsole){
                         System.out.println(value.getValue());
                     }
