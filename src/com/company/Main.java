@@ -7,14 +7,14 @@ public class  Main {
 
     public static void main(String[] args) throws IOException {
 
-        //startIde();  // если запускаем через Idea
-        startConsole(args); // если запускаем через jar-файл в терминале
+        startIde();  // если запускаем через Idea
+        //startConsole(args); // если запускаем через jar-файл в терминале
 
     }
 
     public static void startIde() throws IOException {
 
-        // Тестовый запрос к сайту https://lenta.ru в котором получаем все ссылки документа
+        // Тестовый запрос к сайту https://lenta.ru в котором получаем все ссылки документа (тег <a>)
         Parser parserLentaRu = new Parser(new SourceShare("https://lenta.ru", "a"));
         parserLentaRu.runParser();
         parserLentaRu.saveDataInFile("dataLenta.txt",true);
