@@ -1,5 +1,10 @@
 package com.company;
 
+/*
+* Вспомогательный класс который помогает работать с датой на сайте sql.ru
+*
+* */
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
