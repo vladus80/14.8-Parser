@@ -3,6 +3,7 @@ package com.company;
 /*
 * Интерфейс определяет два метода:
 * sourceConnect() - отвечает за соединение с ресурсом
+* getPageElements()  - возвращает элеиенты документа
 * */
 
 import java.io.IOException;
